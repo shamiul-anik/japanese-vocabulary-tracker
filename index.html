@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Vocabulary Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Japanese Vocabulary Tracker</h1>
+            <div class="stats">
+                <div class="stat-box">
+                    <span>Total Vocabularies:</span>
+                    <span id="totalCount">0</span>
+                </div>
+                <div class="stat-box">
+                    <span>Selected Level Count:</span>
+                    <span id="levelCount">0</span>
+                </div>
+                <div class="stat-box">
+                    <span>Learned Words:</span>
+                    <span id="learnedCount">0 (0%)</span>
+                </div>
+            </div>
+            <div class="controls">
+                <div class="select-wrapper">
+                    <label for="level">Select Level:</label>
+                    <select id="level">
+                        <option value="all">All Levels</option>
+                        <option value="5">N5</option>
+                        <option value="4">N4</option>
+                        <option value="3">N3</option>
+                        <option value="2">N2</option>
+                        <option value="1">N1</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <label for="perPage">Items per page:</label>
+                    <select id="perPage">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <button id="clearLearnedBtn" class="btn btn-danger">Clear Learned Words</button>
+                <div class="checkbox-wrapper right-align">
+                    <label>
+                        <input type="checkbox" id="hideLearnedCheckbox">
+                        Hide Learned Words
+                    </label>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="column-toggles">
+                    <label>Toggle Columns:</label>
+                    <div class="toggle-group">
+                        <label>
+                            <input type="checkbox" data-column="word" checked> Word
+                        </label>
+                        <label>
+                            <input type="checkbox" data-column="furigana" checked> Furigana
+                        </label>
+                        <label>
+                            <input type="checkbox" data-column="romaji" checked> Romaji
+                        </label>
+                        <label>
+                            <input type="checkbox" data-column="meaning" checked> Meaning
+                        </label>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <div class="font-size-buttons">
+                        <button id="decreaseFontBtn">A-</button>
+                        <span id="currentFontSize">16px</span>
+                        <button id="increaseFontBtn">A+</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <table id="vocabTable">
+                <thead>
+                    <tr>
+                        <th>Serial No.</th>
+                        <th class="col-word">Word</th>
+                        <th class="col-furigana">Furigana</th>
+                        <th class="col-romaji">Romaji</th>
+                        <th class="col-meaning">Meaning</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="pagination">
+                <button id="prevPage">Previous</button>
+                <div class="page-navigation">
+                    <span>Page</span>
+                    <input type="number" id="currentPageInput" min="1" value="1">
+                    <span id="totalPages">of 1</span>
+                </div>
+                <button id="nextPage">Next</button>
+            </div>
+        </main>
+    </div>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
