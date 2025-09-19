@@ -28,37 +28,7 @@
                     <span id="learnedCount">0 (0%)</span>
                 </div>
             </div>
-            <div class="controls">
-                <div class="select-wrapper">
-                    <label for="level">Select Level:</label>
-                    <select id="level">
-                        <option value="all">All Levels</option>
-                        <option value="5">N5</option>
-                        <option value="4">N4</option>
-                        <option value="3">N3</option>
-                        <option value="2">N2</option>
-                        <option value="1">N1</option>
-                    </select>
-                </div>
-                <div class="select-wrapper">
-                    <label for="perPage">Items per page:</label>
-                    <select id="perPage">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
-                <button id="clearLearnedBtn" class="btn btn-danger">Clear Learned Words</button>
-                <div class="checkbox-wrapper right-align">
-                    <label>
-                        <input type="checkbox" id="hideLearnedCheckbox">
-                        Hide Learned Words
-                    </label>
-                </div>
-            </div>
-            <div class="header-controls">
+            <div class="control-row">
                 <div class="column-toggles">
                     <label>Toggle Columns:</label>
                     <div class="toggle-group">
@@ -84,10 +54,40 @@
                         <button id="increaseFontBtn">A+</button>
                     </div>
                 </div>
+                <div class="checkbox-wrapper">
+                    <label>
+                        <input type="checkbox" id="hideLearnedCheckbox">
+                        Hide Learned Words
+                    </label>
+                </div>
             </div>
         </header>
 
         <main>
+            <div class="table-controls">
+                <div class="select-wrapper">
+                    <label for="level">Select Level:</label>
+                    <select id="level">
+                        <option value="all">All Levels</option>
+                        <option value="5">N5</option>
+                        <option value="4">N4</option>
+                        <option value="3">N3</option>
+                        <option value="2">N2</option>
+                        <option value="1">N1</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <label for="perPage">Items per page:</label>
+                    <select id="perPage">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
             <table id="vocabTable">
                 <thead>
                     <tr>

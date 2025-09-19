@@ -18,6 +18,10 @@ const prevButton = document.getElementById('prevPage');
 const nextButton = document.getElementById('nextPage');
 const clearLearnedBtn = document.getElementById('clearLearnedBtn');
 const totalPagesSpan = document.getElementById('totalPages');
+const decreaseFontBtn = document.getElementById('decreaseFontBtn');
+const increaseFontBtn = document.getElementById('increaseFontBtn');
+const currentFontSizeSpan = document.getElementById('currentFontSize');
+let currentFontSize = 16; // Default font size
 const currentPageInput = document.getElementById('currentPageInput');
 const totalCountElement = document.getElementById('totalCount');
 const levelCountElement = document.getElementById('levelCount');
@@ -199,16 +203,22 @@ function updateDisplayCounts() {
 
 // Filter vocabulary by selected level and learned status
 function filterVocabularyByLevel() {
+    if (!vocabularyData || !Array.isArray(vocabularyData)) {
+        console.error('Vocabulary data is not available or not an array');
+        return [];
+    }
+
     let filtered = currentLevel === 'all' 
-        ? vocabularyData 
+        ? [...vocabularyData]
         : vocabularyData.filter(item => item.level === parseInt(currentLevel));
     
     // Filter out learned words if hideLearned is true
     if (hideLearned) {
-        filtered = filtered.filter(item => 
-            !learnedWords[currentLevel].has(item.word) && 
-            !learnedWords['all'].has(item.word)
-        );
+        filtered = filtered.filter(item => {
+            const isLearnedInAll = learnedWords['all'] && learnedWords['all'].has(item.word);
+            const isLearnedInLevel = learnedWords[currentLevel] && learnedWords[currentLevel].has(item.word);
+            return !isLearnedInAll && !isLearnedInLevel;
+        });
     }
     
     return filtered;
@@ -217,15 +227,29 @@ function filterVocabularyByLevel() {
 // Render the vocabulary table
 function renderTable() {
     const filteredData = filterVocabularyByLevel();
+    
+    // Handle empty data case
+    if (!filteredData.length) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="no-data">No vocabulary items found</td></tr>';
+        currentPage = 1;
+        totalPagesSpan.textContent = 'of 1';
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+        currentPageInput.value = 1;
+        return;
+    }
+
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
     
     // Ensure current page is valid
     if (currentPage > totalPages) {
-        currentPage = totalPages || 1;
+        currentPage = totalPages;
+    } else if (currentPage < 1) {
+        currentPage = 1;
     }
     
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
     const pageData = filteredData.slice(startIndex, endIndex);
 
     // Update pagination controls
@@ -321,8 +345,63 @@ function changePage(delta) {
     }
 }
 
+// Font size control functions
+function updateFontSize(size) {
+    currentFontSize = Math.max(12, Math.min(24, size)); // Limit font size between 12px and 24px
+    document.body.style.fontSize = `${currentFontSize}px`;
+    currentFontSizeSpan.textContent = `${currentFontSize}px`;
+    localStorage.setItem('fontsize', currentFontSize);
+}
+
+// Setup event listeners for pagination and filtering
+function setupEventListeners() {
+    // Level selection
+    levelSelect.addEventListener('change', () => {
+        currentLevel = levelSelect.value;
+        currentPage = 1; // Reset to first page when changing level
+        saveSettings();
+        updateDisplayCounts();
+        renderTable();
+    });
+
+    // Items per page
+    perPageSelect.addEventListener('change', () => {
+        itemsPerPage = parseInt(perPageSelect.value);
+        currentPage = 1; // Reset to first page when changing items per page
+        saveSettings();
+        renderTable();
+    });
+
+    // Pagination
+    prevButton.addEventListener('click', () => changePage(-1));
+    nextButton.addEventListener('click', () => changePage(1));
+    
+    // Manual page input
+    currentPageInput.addEventListener('change', () => {
+        const newPage = parseInt(currentPageInput.value);
+        const filteredData = filterVocabularyByLevel();
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            renderTable();
+        } else {
+            currentPageInput.value = currentPage; // Reset to current page if invalid
+        }
+    });
+}
+
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize font size from localStorage
+    const savedFontSize = localStorage.getItem('fontsize');
+    if (savedFontSize) {
+        updateFontSize(parseInt(savedFontSize));
+    }
+
+    // Font size control events
+    decreaseFontBtn.addEventListener('click', () => updateFontSize(currentFontSize - 2));
+    increaseFontBtn.addEventListener('click', () => updateFontSize(currentFontSize + 2));
     console.log('DOM loaded, initializing app...');
     console.log('Vocabulary data available:', vocabularyData ? vocabularyData.length : 'No data');
     init();

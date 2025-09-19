@@ -33,9 +33,30 @@ header {
   margin-bottom: 20px;
 }
 
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 10px;
+  background-color: var(--secondary-color);
+  border-radius: 8px;
+}
+
+.control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 10px;
+  background-color: var(--secondary-color);
+  border-radius: 8px;
+}
+
 .header-top {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   margin-bottom: 1rem;
 }
@@ -80,7 +101,7 @@ h2 {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 15px;
   position: relative;
