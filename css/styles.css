@@ -113,8 +113,12 @@ h2 {
 
 .select-wrapper {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 5px;
+}
+
+.select-wrapper > label {
+  font-weight: bold;
 }
 
 .right-align {
