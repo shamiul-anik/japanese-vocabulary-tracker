@@ -117,6 +117,28 @@ h2 {
   gap: 5px;
 }
 
+.search-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input input[type="search"] {
+  padding: 8px 36px 8px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  min-width: 220px;
+}
+
+.search-input .search-btn {
+  position: absolute;
+  right: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
 .select-wrapper > label {
   font-weight: bold;
 }

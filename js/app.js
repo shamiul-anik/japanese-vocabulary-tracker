@@ -8,6 +8,7 @@ let itemsPerPage = 10;
 let currentLevel = 'all';
 let hideLearned = false; // Default state is false (don't hide learned words)
 let learnedWords = {};  // Object to store learned words by level
+let searchTerm = ''; // current search term (empty = no filter)
 const levelSelect = document.getElementById('level');
 const perPageSelect = document.getElementById('perPage');
 const hideLearnedCheckbox = document.getElementById('hideLearnedCheckbox');
@@ -202,6 +203,29 @@ function setupEventListeners() {
     clearLearnedBtn.addEventListener('click', clearLearnedWordsForLevel);
     perPageSelect.addEventListener('change', handlePerPageChange);
     hideLearnedCheckbox.addEventListener('change', handleHideLearnedChange);
+    // Search input
+    const searchBox = document.getElementById('searchBox');
+    const searchBtn = document.getElementById('searchBtn');
+    // debounce helper
+    function debounce(fn, wait) {
+        let t = null;
+        return function(...args) {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), wait);
+        };
+    }
+    const onSearchChange = debounce(function(e) {
+        searchTerm = (e.target.value || '').trim();
+        currentPage = 1;
+        updateDisplayCounts();
+        renderTable();
+        saveSettings();
+    }, 300);
+    if (searchBox) {
+        searchBox.addEventListener('input', onSearchChange);
+        // allow pressing button to focus / trigger (keeps UI consistent)
+        if (searchBtn) searchBtn.addEventListener('click', () => searchBox.focus());
+    }
     prevButton.addEventListener('click', () => changePage(-1));
     nextButton.addEventListener('click', () => changePage(1));
     columnToggles.forEach(toggle => {
@@ -318,7 +342,7 @@ function filterVocabularyByLevel() {
             ? [...vocabularyData]
             : vocabularyData.filter(item => item.level === parseInt(currentLevel));
 
-        // Filter out learned words if hideLearned is true
+    // Filter out learned words if hideLearned is true
         if (hideLearned) {
             const allSet = learnedWords['all'] || new Set();
             filtered = filtered.filter(item => {
@@ -326,6 +350,17 @@ function filterVocabularyByLevel() {
                 const levelSet = learnedWords[item.level ? item.level.toString() : currentLevel] || new Set();
                 const isLearnedInLevel = levelSet.has(item.word);
                 return !(isLearnedInAll || isLearnedInLevel);
+            });
+        }
+        // Apply searchTerm filter (case-insensitive, partial match across multiple fields)
+        if (searchTerm && searchTerm.length > 0) {
+            const q = searchTerm.toLowerCase();
+            filtered = filtered.filter(item => {
+                const word = (item.word || '').toString().toLowerCase();
+                const furigana = (item.furigana || '').toString().toLowerCase();
+                const romaji = (item.romaji || '').toString().toLowerCase();
+                const meaning = (item.meaning || '').toString().toLowerCase();
+                return word.includes(q) || furigana.includes(q) || romaji.includes(q) || meaning.includes(q);
             });
         }
         
