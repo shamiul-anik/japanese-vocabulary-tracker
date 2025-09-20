@@ -592,4 +592,22 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing app...');
     console.log('Vocabulary data available:', vocabularyData ? vocabularyData.length : 'No data');
     init();
+
+    // show clear button if search has value on load
+    const sb = document.getElementById('searchBox');
+    const clearBtn = document.getElementById('searchClearBtn');
+    if (sb && clearBtn) clearBtn.style.display = sb.value ? 'inline' : 'none';
+
+    // Keyboard shortcut: '/' to focus search (skip if typing in input)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/') {
+            const active = document.activeElement;
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+            if (sb) {
+                e.preventDefault();
+                sb.focus();
+                sb.selectionStart = sb.selectionEnd = sb.value.length;
+            }
+        }
+    });
 });
