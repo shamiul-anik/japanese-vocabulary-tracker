@@ -6,10 +6,8 @@ const SETTINGS_KEY = 'vocabSettings';
 let currentPage = 1;
 let itemsPerPage = 10;
 let currentLevel = 'all';
-let hideLearned = false;
+let hideLearned = false; // Default state is false (don't hide learned words)
 let learnedWords = {};  // Object to store learned words by level
-
-// DOM Elements
 const levelSelect = document.getElementById('level');
 const perPageSelect = document.getElementById('perPage');
 const hideLearnedCheckbox = document.getElementById('hideLearnedCheckbox');
@@ -30,17 +28,48 @@ const columnToggles = document.querySelectorAll('input[data-column]');
 
 // Initialize learned words storage
 function initializeLearnedWords() {
-    // Initialize for all levels
-    const levels = ['all', '1', '2', '3', '4', '5'];
-    levels.forEach(level => {
-        const key = STORAGE_KEY_PREFIX + level;
-        const savedLearned = localStorage.getItem(key);
-        if (savedLearned) {
-            learnedWords[level] = new Set(JSON.parse(savedLearned));
-        } else {
-            learnedWords[level] = new Set();
+    try {
+        // Initialize for all levels
+        const levels = ['all', '1', '2', '3', '4', '5'];
+        levels.forEach(level => {
+            const key = STORAGE_KEY_PREFIX + level;
+            try {
+                const savedLearned = localStorage.getItem(key);
+                if (savedLearned) {
+                    const parsed = JSON.parse(savedLearned);
+                    learnedWords[level] = new Set(Array.isArray(parsed) ? parsed : []);
+                } else {
+                    learnedWords[level] = new Set();
+                }
+            } catch (error) {
+                console.error(`Error loading learned words for level ${level}:`, error);
+                learnedWords[level] = new Set();
+            }
+        });
+
+        // Validate data consistency
+        const allSet = learnedWords['all'];
+        if (allSet) {
+            // Ensure all words marked as learned in specific levels are in 'all'
+            levels.forEach(level => {
+                if (level !== 'all' && learnedWords[level]) {
+                    learnedWords[level].forEach(word => allSet.add(word));
+                }
+            });
+            // Save the validated 'all' set
+            localStorage.setItem(STORAGE_KEY_PREFIX + 'all', JSON.stringify([...allSet]));
         }
-    });
+    } catch (error) {
+        console.error('Error initializing learned words:', error);
+        learnedWords = {
+            'all': new Set(),
+            '1': new Set(),
+            '2': new Set(),
+            '3': new Set(),
+            '4': new Set(),
+            '5': new Set()
+        };
+    }
 }
 
 // Initialize the application
@@ -72,18 +101,36 @@ function saveSettings() {
 
 // Load settings from localStorage
 function loadSettings() {
-    const savedSettings = localStorage.getItem(SETTINGS_KEY);
-    if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        currentPage = settings.currentPage;
-        itemsPerPage = settings.itemsPerPage;
-        currentLevel = settings.currentLevel;
-        hideLearned = settings.hideLearned;
+    try {
+        const savedSettings = localStorage.getItem(SETTINGS_KEY);
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            
+            // Load basic settings first
+            itemsPerPage = parseInt(settings.itemsPerPage) || 10;
+            currentLevel = settings.currentLevel || 'all';
+            hideLearned = settings.hideLearned || false;
+            currentPage = settings.currentPage || 1;
 
-        // Update UI to match settings
+            // Update UI to match settings
+            perPageSelect.value = itemsPerPage;
+            levelSelect.value = currentLevel;
+            hideLearnedCheckbox.checked = hideLearned;
+            currentPageInput.value = currentPage.toString();
+        }
+    } catch (error) {
+        console.error('Error loading settings:', error);
+        // Reset to defaults if there's an error
+        currentPage = 1;
+        itemsPerPage = 10;
+        currentLevel = 'all';
+        hideLearned = false;
+        
+        // Update UI with defaults
         perPageSelect.value = itemsPerPage;
         levelSelect.value = currentLevel;
-        hideLearnedCheckbox.checked = hideLearned;
+        hideLearnedCheckbox.checked = false;
+        currentPageInput.value = "1";
     }
 }
 
@@ -95,21 +142,36 @@ function clearLearnedWordsForLevel() {
         : `Are you sure you want to clear all learned words for N${level}?`;
 
     if (confirm(confirmMessage)) {
-        if (level === 'all') {
-            // Clear all levels
-            Object.keys(learnedWords).forEach(key => {
-                learnedWords[key] = new Set();
-                localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(Array.from(learnedWords[key])));
-            });
-        } else {
-            // Clear specific level
-            learnedWords[level] = new Set();
-            localStorage.setItem(STORAGE_KEY_PREFIX + level, JSON.stringify(Array.from(learnedWords[level])));
+        try {
+            if (level === 'all') {
+                // Clear all levels
+                Object.keys(learnedWords).forEach(key => {
+                    if (learnedWords[key]) {
+                        learnedWords[key].clear();
+                        localStorage.removeItem(STORAGE_KEY_PREFIX + key);
+                    }
+                });
+            } else {
+                // Clear specific level
+                if (learnedWords[level]) {
+                    learnedWords[level].clear();
+                    localStorage.removeItem(STORAGE_KEY_PREFIX + level);
+                }
+            }
+            
+            // Reset to first page when clearing words
+            currentPage = 1;
+            
+            // Save the new state
+            saveSettings();
+            
+            // Update display and table
+            updateDisplayCounts();
+            renderTable();
+        } catch (error) {
+            console.error('Error clearing learned words:', error);
+            alert('An error occurred while clearing learned words. Please try again.');
         }
-        
-        // Update display
-        updateDisplayCounts();
-        renderTable();
     }
 }
 
@@ -144,6 +206,13 @@ function handleLevelChange(event) {
 // Handle hide learned change
 function handleHideLearnedChange(event) {
     hideLearned = event.target.checked;
+    // Debug: log current hideLearned state and sizes of learned sets
+    try {
+        const allCount = learnedWords['all'] ? learnedWords['all'].size : 0;
+        console.debug('hideLearned toggled ->', hideLearned, 'learned all count =', allCount);
+    } catch (e) {
+        console.debug('hideLearned toggled ->', hideLearned);
+    }
     currentPage = 1;
     updateDisplayCounts();
     renderTable();
@@ -166,9 +235,11 @@ function handlePageInputChange(event) {
     
     if (value && value > 0 && value <= totalPages) {
         currentPage = value;
+        currentPageInput.value = currentPage.toString();
         renderTable();
+        saveSettings();
     } else {
-        event.target.value = currentPage;
+        currentPageInput.value = currentPage.toString();
     }
 }
 
@@ -184,18 +255,30 @@ function handleColumnToggle(event) {
 
 // Update all display counts
 function updateDisplayCounts() {
-    const filteredData = filterVocabularyByLevel();
+    if (!vocabularyData || !Array.isArray(vocabularyData)) {
+        console.error('Vocabulary data not available');
+        return;
+    }
+
     const totalVocab = vocabularyData.length;
-    const levelVocab = filteredData.length;
+    
+    // Get vocabulary for current level
+    const levelData = currentLevel === 'all' 
+        ? vocabularyData 
+        : vocabularyData.filter(item => item.level === parseInt(currentLevel));
+    const levelVocab = levelData.length;
     
     // Count learned words for current level
-    const currentLevelSet = learnedWords[currentLevel];
-    const learnedInLevel = filteredData.filter(item => 
-        currentLevelSet.has(item.word) || learnedWords['all'].has(item.word)
+    const currentLevelSet = learnedWords[currentLevel] || new Set();
+    const allLevelSet = learnedWords['all'] || new Set();
+    
+    const learnedInLevel = levelData.filter(item => 
+        currentLevelSet.has(item.word) || allLevelSet.has(item.word)
     ).length;
     
     const percentage = levelVocab > 0 ? (learnedInLevel / levelVocab * 100).toFixed(1) : '0.0';
 
+    // Update display elements
     totalCountElement.textContent = totalVocab;
     levelCountElement.textContent = levelVocab;
     learnedCountElement.textContent = `${learnedInLevel} (${percentage}%)`;
@@ -208,20 +291,28 @@ function filterVocabularyByLevel() {
         return [];
     }
 
-    let filtered = currentLevel === 'all' 
-        ? [...vocabularyData]
-        : vocabularyData.filter(item => item.level === parseInt(currentLevel));
-    
-    // Filter out learned words if hideLearned is true
-    if (hideLearned) {
-        filtered = filtered.filter(item => {
-            const isLearnedInAll = learnedWords['all'] && learnedWords['all'].has(item.word);
-            const isLearnedInLevel = learnedWords[currentLevel] && learnedWords[currentLevel].has(item.word);
-            return !isLearnedInAll && !isLearnedInLevel;
-        });
+    try {
+        // First filter by level
+        let filtered = currentLevel === 'all'
+            ? [...vocabularyData]
+            : vocabularyData.filter(item => item.level === parseInt(currentLevel));
+
+        // Filter out learned words if hideLearned is true
+        if (hideLearned) {
+            const allSet = learnedWords['all'] || new Set();
+            filtered = filtered.filter(item => {
+                const isLearnedInAll = allSet.has(item.word);
+                const levelSet = learnedWords[item.level ? item.level.toString() : currentLevel] || new Set();
+                const isLearnedInLevel = levelSet.has(item.word);
+                return !(isLearnedInAll || isLearnedInLevel);
+            });
+        }
+        
+        return filtered;
+    } catch (error) {
+        console.error('Error filtering vocabulary:', error);
+        return [];
     }
-    
-    return filtered;
 }
 
 // Render the vocabulary table
@@ -265,8 +356,11 @@ function renderTable() {
     pageData.forEach((item, index) => {
         const row = document.createElement('tr');
         const serialNo = startIndex + index + 1;
-        const isLearned = learnedWords[currentLevel].has(item.word) || 
-                         learnedWords['all'].has(item.word);
+        
+        // Check learned status from both current level and 'all'
+        const isLearnedInCurrent = learnedWords[currentLevel] && learnedWords[currentLevel].has(item.word);
+        const isLearnedInAll = learnedWords['all'] && learnedWords['all'].has(item.word);
+        const isLearned = isLearnedInCurrent || isLearnedInAll;
 
         row.innerHTML = `
             <td>${serialNo}</td>
@@ -276,17 +370,30 @@ function renderTable() {
             <td class="col-meaning">${item.meaning}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-check" onclick="toggleLearned('${item.word}', true)" 
-                            style="color: ${isLearned ? 'var(--success-color)' : 'var(--border-color)'}">
+                    <button class="btn btn-check" data-word="${item.word}" data-action="learn"
+                            style="color: ${isLearned ? 'var(--success-color)' : 'var(--border-color)'}"
+                            title="${isLearned ? 'Mark as not learned' : 'Mark as learned'}">
                         ✓
                     </button>
-                    <button class="btn btn-x" onclick="toggleLearned('${item.word}', false)"
-                            style="color: ${!isLearned ? 'var(--danger-color)' : 'var(--border-color)'}">
+                    <button class="btn btn-x" data-word="${item.word}" data-action="unlearn"
+                            style="color: ${!isLearned ? 'var(--danger-color)' : 'var(--border-color)'}"
+                            title="${!isLearned ? 'Mark as learned' : 'Mark as not learned'}">
                         ✕
                     </button>
                 </div>
             </td>
         `;
+        
+        // Add event listeners to the buttons
+        row.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const word = this.dataset.word;
+                const action = this.dataset.action;
+                const shouldMarkLearned = action === 'learn';
+                toggleLearned(word, shouldMarkLearned);
+            });
+        });
+        
         tableBody.appendChild(row);
     });
 
@@ -302,35 +409,56 @@ function renderTable() {
 }
 
 // Toggle word learned status
-function toggleLearned(word, isLearned) {
-    // Get the current level set
-    const levelSet = learnedWords[currentLevel];
-
-    if (isLearned) {
-        levelSet.add(word);
-    } else {
-        levelSet.delete(word);
-        // Also remove from 'all' if it exists there
-        learnedWords['all'].delete(word);
+function toggleLearned(word, shouldMarkLearned) {
+    if (!word || !learnedWords) {
+        console.error('Invalid word or learnedWords not initialized');
+        return;
     }
 
-    // Save to localStorage for current level
-    localStorage.setItem(
-        STORAGE_KEY_PREFIX + currentLevel, 
-        JSON.stringify([...levelSet])
-    );
-    
-    // If it's in 'all' level, save that too
-    if (currentLevel === 'all') {
-        localStorage.setItem(
-            STORAGE_KEY_PREFIX + 'all', 
-            JSON.stringify([...learnedWords['all']])
-        );
+    try {
+        // Get vocabulary item to determine its level
+        const vocabItem = vocabularyData.find(item => item.word === word);
+        if (!vocabItem) {
+            console.error('Vocabulary item not found:', word);
+            return;
+        }
+
+        // Initialize Sets if they don't exist
+        const levels = ['all', '1', '2', '3', '4', '5'];
+        levels.forEach(level => {
+            if (!learnedWords[level]) learnedWords[level] = new Set();
+        });
+
+        const itemLevel = vocabItem.level.toString();
+        
+        if (shouldMarkLearned) {
+            // Mark as learned
+            learnedWords[itemLevel].add(word);  // Add to word's specific level
+            learnedWords['all'].add(word);      // Always add to 'all' level
+            if (currentLevel !== 'all') {
+                learnedWords[currentLevel].add(word); // Add to current level if not in 'all' view
+            }
+        } else {
+            // Mark as not learned - remove from all sets
+            levels.forEach(level => {
+                learnedWords[level].delete(word);
+            });
+        }
+
+        // Save changes to localStorage
+        levels.forEach(level => {
+            localStorage.setItem(
+                STORAGE_KEY_PREFIX + level,
+                JSON.stringify([...learnedWords[level]])
+            );
+        });
+
+        // Update display
+        updateDisplayCounts();
+        renderTable();
+    } catch (error) {
+        console.error('Error toggling learned status:', error);
     }
-    
-    // Update display
-    updateDisplayCounts();
-    renderTable();
 }
 
 // Change page
@@ -341,7 +469,9 @@ function changePage(delta) {
 
     if (newPage >= 1 && newPage <= totalPages) {
         currentPage = newPage;
+        currentPageInput.value = currentPage.toString();
         renderTable();
+        saveSettings();
     }
 }
 
@@ -353,43 +483,8 @@ function updateFontSize(size) {
     localStorage.setItem('fontsize', currentFontSize);
 }
 
-// Setup event listeners for pagination and filtering
-function setupEventListeners() {
-    // Level selection
-    levelSelect.addEventListener('change', () => {
-        currentLevel = levelSelect.value;
-        currentPage = 1; // Reset to first page when changing level
-        saveSettings();
-        updateDisplayCounts();
-        renderTable();
-    });
-
-    // Items per page
-    perPageSelect.addEventListener('change', () => {
-        itemsPerPage = parseInt(perPageSelect.value);
-        currentPage = 1; // Reset to first page when changing items per page
-        saveSettings();
-        renderTable();
-    });
-
-    // Pagination
-    prevButton.addEventListener('click', () => changePage(-1));
-    nextButton.addEventListener('click', () => changePage(1));
-    
-    // Manual page input
-    currentPageInput.addEventListener('change', () => {
-        const newPage = parseInt(currentPageInput.value);
-        const filteredData = filterVocabularyByLevel();
-        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-        
-        if (newPage >= 1 && newPage <= totalPages) {
-            currentPage = newPage;
-            renderTable();
-        } else {
-            currentPageInput.value = currentPage; // Reset to current page if invalid
-        }
-    });
-}
+// Note: setupEventListeners is defined earlier (used by init()).
+// The earlier implementation wires all controls including the hideLearned checkbox.
 
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {

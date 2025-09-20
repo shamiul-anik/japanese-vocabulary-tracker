@@ -148,6 +148,47 @@ h2 {
   user-select: none;
 }
 
+.learned-words-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.checkbox-wrapper label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+.btn-danger:active {
+  transform: translateY(1px);
+}
+
 select {
   padding: 8px;
   border-radius: 4px;
