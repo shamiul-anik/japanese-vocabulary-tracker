@@ -273,43 +273,50 @@ table {
 
 th,
 td {
-  padding: 12px;
+  padding: 4px;
   text-align: center;
   border-bottom: 1px solid var(--border-color);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  
+	/* overflow: hidden;
+  text-overflow: ellipsis; */
   white-space: nowrap;
+}
+
+th {
+  padding: 10px;
 }
 
 /* Column widths */
 th:nth-child(1),
 td:nth-child(1) {
   /* Serial No. */
-  width: 80px;
+  width: 50px;
 }
 
 th:nth-child(2),
 td:nth-child(2) {
   /* Word */
-  width: 15%;
+  width: 12%;
 }
 
 th:nth-child(3),
 td:nth-child(3) {
   /* Furigana */
-  width: 20%;
+  width: 15%;
 }
 
 th:nth-child(4),
 td:nth-child(4) {
   /* Romaji */
-  width: 20%;
+  width: 15%;
 }
 
 th:nth-child(5),
 td:nth-child(5) {
   /* Meaning */
-  width: 30%;
+  width: 43%;
+	word-break: normal;
+	white-space: normal;
 }
 
 th:nth-child(6),
