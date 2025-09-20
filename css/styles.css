@@ -124,7 +124,7 @@ h2 {
 }
 
 .search-input input[type="search"] {
-  padding: 8px 36px 8px 10px;
+  padding: 9px 33px 9px 32px;
   border-radius: 4px;
   border: 1px solid var(--border-color);
   min-width: 220px;
@@ -150,7 +150,7 @@ input[type="search"] {
 
 .search-input .search-btn {
   position: absolute;
-  right: 4px;
+  left: 0px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -159,11 +159,11 @@ input[type="search"] {
 
 .search-clear {
   position: absolute;
-  right: 30px;
+  right: 4px;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .search-spinner {

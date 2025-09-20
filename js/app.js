@@ -479,20 +479,40 @@ function renderTable() {
         row.innerHTML = `
             <td>${serialNo}</td>
             <td class="col-word">${highlight(item.word)}</td>
-            <td class="col-furigana">${highlight(item.furigana || '')}</td>
-            <td class="col-romaji">${highlight(item.romaji || '')}</td>
-            <td class="col-meaning">${highlight(item.meaning || '')}</td>
+            <td class="col-furigana">${highlight(item.furigana || "")}</td>
+            <td class="col-romaji">${highlight(item.romaji || "")}</td>
+            <td class="col-meaning">${highlight(item.meaning || "")}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-check" data-word="${escapeHtml(item.word)}" data-action="learn"
-                            style="color: ${isLearned ? 'var(--success-color)' : 'var(--border-color)'}"
-                            title="${isLearned ? 'Mark as not learned' : 'Mark as learned'}">
-                        ✓
+                    <button class="btn btn-check" data-word="${escapeHtml(
+                      item.word
+                    )}" data-action="learn"
+                            style="color: ${
+                              isLearned
+                                ? "var(--success-color)"
+                                : "var(--border-color)"
+                            }"
+                            title="${
+                              isLearned
+                                ? "Mark as not learned"
+                                : "Mark as learned"
+                            }">
+                        ✔
                     </button>
-                    <button class="btn btn-x" data-word="${escapeHtml(item.word)}" data-action="unlearn"
-                            style="color: ${!isLearned ? 'var(--danger-color)' : 'var(--border-color)'}"
-                            title="${!isLearned ? 'Mark as learned' : 'Mark as not learned'}">
-                        ✕
+                    <button class="btn btn-x" data-word="${escapeHtml(
+                      item.word
+                    )}" data-action="unlearn"
+                            style="color: ${
+                              !isLearned
+                                ? "var(--danger-color)"
+                                : "var(--border-color)"
+                            }"
+                            title="${
+                              !isLearned
+                                ? "Mark as learned"
+                                : "Mark as not learned"
+                            }">
+                        ✖
                     </button>
                 </div>
             </td>
