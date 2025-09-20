@@ -144,25 +144,46 @@ function clearLearnedWordsForLevel() {
     if (confirm(confirmMessage)) {
         try {
             if (level === 'all') {
-                // Clear all levels
+                // Clear all levels and remove storage keys
                 Object.keys(learnedWords).forEach(key => {
                     if (learnedWords[key]) {
                         learnedWords[key].clear();
                         localStorage.removeItem(STORAGE_KEY_PREFIX + key);
                     }
                 });
+                // Ensure 'all' storage removed as well
+                localStorage.removeItem(STORAGE_KEY_PREFIX + 'all');
             } else {
                 // Clear specific level
                 if (learnedWords[level]) {
+                    // Remove words in this level from the 'all' set where appropriate
+                    const removedWords = [...learnedWords[level]];
                     learnedWords[level].clear();
                     localStorage.removeItem(STORAGE_KEY_PREFIX + level);
+
+                    // Rebuild 'all' by collecting words from remaining levels
+                    const newAll = new Set();
+                    Object.keys(learnedWords).forEach(k => {
+                        if (k !== 'all' && learnedWords[k]) {
+                            learnedWords[k].forEach(w => newAll.add(w));
+                        }
+                    });
+                    learnedWords['all'] = newAll;
+                    // Persist updated 'all'
+                    localStorage.setItem(STORAGE_KEY_PREFIX + 'all', JSON.stringify([...learnedWords['all']]));
                 }
             }
             
             // Reset to first page when clearing words
             currentPage = 1;
             
-            // Save the new state
+            // Persist remaining per-level sets to storage (ensure consistency)
+            Object.keys(learnedWords).forEach(k => {
+                if (learnedWords[k]) {
+                    localStorage.setItem(STORAGE_KEY_PREFIX + k, JSON.stringify([...learnedWords[k]]));
+                }
+            });
+            // Save UI settings (page, hideLearned, etc.)
             saveSettings();
             
             // Update display and table
