@@ -53,22 +53,20 @@ This interactive app provides an intuitive and customizable way to study, monito
 - **JavaScript (Vanilla JS)** for functionality  
 - **HTML/CSS** for structure and styling  
 - **Local Storage** for saving progress offline  
-- **data.js** file for structured vocabulary data  
 
 ---
 
 ## 📌 Current Limitations  
 
-- Pagination requires refinement.  
-- Learned word tracking is dynamic but improvements are ongoing.  
+- Responsive design requires refinement.
 
 ---
-
+<!-- 
 ## 📷 Demo (Optional)  
 
 _Add a screenshot or GIF of the app here once ready._  
 
----
+--- -->
 
 ## 📄 License  
 

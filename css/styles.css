@@ -130,6 +130,24 @@ h2 {
   min-width: 220px;
 }
 
+/* Hide native browser search clear buttons so only the custom clear (X) is shown */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
+input[type="search"]::-ms-clear,
+input[type="search"]::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+input[type="search"] {
+  -webkit-appearance: textfield;
+  appearance: textfield;
+}
+
 .search-input .search-btn {
   position: absolute;
   right: 4px;
@@ -460,6 +478,40 @@ tr:hover {
     flex-direction: column;
   }
 
+  .table-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .select-wrapper {
+    width: 100%;
+  }
+
+  .search-input input[type="search"] {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .search-input .search-btn { right: 8px; }
+  .search-clear { right: 36px; }
+  .search-spinner { right: 64px; }
+
+  .results-wrapper {
+    margin: 8px 0;
+  }
+
+  .page-controls {
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
   .stat-box {
     width: 100%;
   }
@@ -472,5 +524,6 @@ tr:hover {
   th,
   td {
     min-width: 120px;
+    white-space: normal;
   }
 }
