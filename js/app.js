@@ -204,28 +204,50 @@ function setupEventListeners() {
     clearLearnedBtn.addEventListener('click', clearLearnedWordsForLevel);
     perPageSelect.addEventListener('change', handlePerPageChange);
     hideLearnedCheckbox.addEventListener('change', handleHideLearnedChange);
-    // Search input
+    // Search input (instant)
     const searchBox = document.getElementById('searchBox');
     const searchBtn = document.getElementById('searchBtn');
-    // debounce helper
-    function debounce(fn, wait) {
-        let t = null;
-        return function(...args) {
-            clearTimeout(t);
-            t = setTimeout(() => fn.apply(this, args), wait);
-        };
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    const searchSpinner = document.getElementById('searchSpinner');
+
+    function showSpinner(show) {
+        if (!searchSpinner) return;
+        searchSpinner.style.display = show ? 'inline-block' : 'none';
     }
-    const onSearchChange = debounce(function(e) {
+
+    function onSearchChangeImmediate(e) {
         searchTerm = (e.target.value || '').trim();
+        // show or hide clear button
+        if (searchClearBtn) searchClearBtn.style.display = searchTerm ? 'inline' : 'none';
         currentPage = 1;
+        // show spinner briefly while updating
+        showSpinner(true);
+        // render synchronously; small set should be fast
         updateDisplayCounts();
         renderTable();
         saveSettings();
-    }, 300);
+        // hide spinner after render
+        setTimeout(() => showSpinner(false), 150);
+    }
+
     if (searchBox) {
-        searchBox.addEventListener('input', onSearchChange);
+        searchBox.addEventListener('input', onSearchChangeImmediate);
         // allow pressing button to focus / trigger (keeps UI consistent)
         if (searchBtn) searchBtn.addEventListener('click', () => searchBox.focus());
+    }
+    if (searchClearBtn && searchBox) {
+        searchClearBtn.addEventListener('click', () => {
+            searchBox.value = '';
+            searchTerm = '';
+            searchClearBtn.style.display = 'none';
+            currentPage = 1;
+            showSpinner(true);
+            updateDisplayCounts();
+            renderTable();
+            saveSettings();
+            setTimeout(() => showSpinner(false), 100);
+            searchBox.focus();
+        });
     }
     prevButton.addEventListener('click', () => changePage(-1));
     nextButton.addEventListener('click', () => changePage(1));

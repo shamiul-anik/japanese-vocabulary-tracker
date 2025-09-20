@@ -83,6 +83,8 @@
                     <label for="searchBox" class="visually-hidden">Search</label>
                     <div class="search-input">
                         <input type="search" id="searchBox" placeholder="Search vocabulary...">
+                        <button id="searchClearBtn" class="search-clear" aria-label="Clear" title="Clear search" style="display:none">✕</button>
+                        <div id="searchSpinner" class="search-spinner" aria-hidden="true" style="display:none"></div>
                         <button id="searchBtn" class="search-btn" aria-label="Search">🔍</button>
                     </div>
                 </div>
@@ -96,9 +98,7 @@
                         <option value="100">100</option>
                     </select>
                 </div>
-                <div class="results-wrapper">
-                    <span id="resultsCount">Showing 0 results</span>
-                </div>
+                <!-- resultsCount moved next to pagination for left alignment -->
             </div>
 
             <table id="vocabTable">
@@ -115,13 +115,18 @@
                 <tbody></tbody>
             </table>
             <div class="pagination">
-                <button id="prevPage">Previous</button>
-                <div class="page-navigation">
-                    <span>Page</span>
-                    <input type="number" id="currentPageInput" min="1" value="1">
-                    <span id="totalPages">of 1</span>
+                <div class="results-wrapper">
+                    <span id="resultsCount">Showing 0 results</span>
                 </div>
-                <button id="nextPage">Next</button>
+                <div class="page-controls">
+                    <button id="prevPage">Previous</button>
+                    <div class="page-navigation">
+                        <span>Page</span>
+                        <input type="number" id="currentPageInput" min="1" value="1">
+                        <span id="totalPages">of 1</span>
+                    </div>
+                    <button id="nextPage">Next</button>
+                </div>
             </div>
         </main>
     </div>
