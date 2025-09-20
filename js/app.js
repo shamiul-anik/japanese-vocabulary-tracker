@@ -25,6 +25,7 @@ const currentPageInput = document.getElementById('currentPageInput');
 const totalCountElement = document.getElementById('totalCount');
 const levelCountElement = document.getElementById('levelCount');
 const learnedCountElement = document.getElementById('learnedCount');
+const resultsCountElement = document.getElementById('resultsCount');
 const columnToggles = document.querySelectorAll('input[data-column]');
 
 // Initialize learned words storage
@@ -363,12 +364,47 @@ function filterVocabularyByLevel() {
                 return word.includes(q) || furigana.includes(q) || romaji.includes(q) || meaning.includes(q);
             });
         }
-        
+
+        // update results count display (before pagination)
+        try {
+            if (resultsCountElement) resultsCountElement.textContent = `Showing ${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
+        } catch (e) { /* ignore */ }
+
         return filtered;
     } catch (error) {
         console.error('Error filtering vocabulary:', error);
         return [];
     }
+}
+
+// Escape HTML to avoid injection when highlighting
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (s) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[s];
+    });
+}
+
+// Highlight occurrences of searchTerm in text (case-insensitive), returns HTML string
+function highlight(text) {
+    const raw = text == null ? '' : String(text);
+    if (!searchTerm) return escapeHtml(raw);
+    const q = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape regex
+    const re = new RegExp(q, 'ig');
+    // Use escaped text but replace matches by locating in original string via regex on original
+    let result = '';
+    let lastIndex = 0;
+    let match;
+    while ((match = re.exec(raw)) !== null) {
+        const start = match.index;
+        const end = re.lastIndex;
+        result += escapeHtml(raw.slice(lastIndex, start));
+        result += `<mark>${escapeHtml(raw.slice(start, end))}</mark>`;
+        lastIndex = end;
+        // avoid infinite loops for zero-length matches
+        if (re.lastIndex === match.index) re.lastIndex++;
+    }
+    result += escapeHtml(raw.slice(lastIndex));
+    return result;
 }
 
 // Render the vocabulary table
@@ -420,18 +456,18 @@ function renderTable() {
 
         row.innerHTML = `
             <td>${serialNo}</td>
-            <td class="col-word">${item.word}</td>
-            <td class="col-furigana">${item.furigana || ''}</td>
-            <td class="col-romaji">${item.romaji}</td>
-            <td class="col-meaning">${item.meaning}</td>
+            <td class="col-word">${highlight(item.word)}</td>
+            <td class="col-furigana">${highlight(item.furigana || '')}</td>
+            <td class="col-romaji">${highlight(item.romaji || '')}</td>
+            <td class="col-meaning">${highlight(item.meaning || '')}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-check" data-word="${item.word}" data-action="learn"
+                    <button class="btn btn-check" data-word="${escapeHtml(item.word)}" data-action="learn"
                             style="color: ${isLearned ? 'var(--success-color)' : 'var(--border-color)'}"
                             title="${isLearned ? 'Mark as not learned' : 'Mark as learned'}">
                         ✓
                     </button>
-                    <button class="btn btn-x" data-word="${item.word}" data-action="unlearn"
+                    <button class="btn btn-x" data-word="${escapeHtml(item.word)}" data-action="unlearn"
                             style="color: ${!isLearned ? 'var(--danger-color)' : 'var(--border-color)'}"
                             title="${!isLearned ? 'Mark as learned' : 'Mark as not learned'}">
                         ✕

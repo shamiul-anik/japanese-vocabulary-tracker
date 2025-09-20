@@ -139,6 +139,18 @@ h2 {
   font-size: 16px;
 }
 
+.results-wrapper {
+  margin-left: 12px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+mark {
+  background-color: #ffd54f;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
 .select-wrapper > label {
   font-weight: bold;
 }
