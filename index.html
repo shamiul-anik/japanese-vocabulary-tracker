@@ -2,132 +2,130 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="A lightweight Japanese vocabulary tracker with search, pagination, and learned-word tracking.">
+    <meta name="theme-color" content="#0ea5e9">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Japanese Vocabulary Tracker</title>
     <link rel="icon" type="image/jpg" href="img/logo.png">
+    <!-- Web app manifest (optional) -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Tailwind Play CDN for quick migration -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-top">
-                <img src="img/logo.png" alt="Japanese Vocabulary Tracker Logo" class="logo">
-                <h1>Japanese Vocabulary Tracker</h1>
+    <!-- Skip link for keyboard users -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white p-2 rounded shadow">Skip to content</a>
+    <div class="max-w-6xl mx-auto p-6">
+        <header class="bg-white rounded-lg shadow p-6 mb-4" role="banner">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <img src="img/logo.png" alt="Japanese Vocabulary Tracker Logo" class="w-12 h-12 rounded-full object-cover">
+                    <h1 class="text-2xl font-semibold text-sky-600">Japanese Vocabulary Tracker</h1>
+                </div>
+                <div class="flex gap-4 flex-wrap justify-center" role="status" aria-live="polite">
+                    <div class="bg-slate-50 rounded p-3 text-center min-w-[160px]">
+                        <div class="text-sm text-slate-500">Total Vocabularies</div>
+                        <div id="totalCount" class="font-medium" aria-atomic="true">0</div>
+                    </div>
+                    <div class="bg-slate-50 rounded p-3 text-center min-w-[160px]">
+                        <div class="text-sm text-slate-500">Selected Level Count</div>
+                        <div id="levelCount" class="font-medium" aria-atomic="true">0</div>
+                    </div>
+                    <div class="bg-slate-50 rounded p-3 text-center min-w-[160px]">
+                        <div class="text-sm text-slate-500">Learned Words</div>
+                        <div id="learnedCount" class="font-medium" aria-atomic="true">0 (0%)</div>
+                    </div>
+                </div>
             </div>
-            <div class="stats">
-                <div class="stat-box">
-                    <span>Total Vocabularies:</span>
-                    <span id="totalCount">0</span>
-                </div>
-                <div class="stat-box">
-                    <span>Selected Level Vocabularies Count:</span>
-                    <span id="levelCount">0</span>
-                </div>
-                <div class="stat-box">
-                    <span>Learned Words:</span>
-                    <span id="learnedCount">0 (0%)</span>
-                </div>
-            </div>
-            <div class="control-row">
-                <div class="column-toggles">
-                    <label>Toggle Columns:</label>
-                    <div class="toggle-group">
-                        <label>
-                            <input type="checkbox" data-column="word" checked> Word
-                        </label>
-                        <label>
-                            <input type="checkbox" data-column="furigana" checked> Furigana
-                        </label>
-                        <label>
-                            <input type="checkbox" data-column="romaji" checked> Romaji
-                        </label>
-                        <label>
-                            <input type="checkbox" data-column="meaning" checked> Meaning
-                        </label>
+
+            <div class="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <label class="font-semibold" id="toggleColumnsLabel">Toggle Columns:</label>
+                    <div class="flex gap-3 items-center">
+                        <label class="flex items-center gap-1"><input type="checkbox" data-column="word" checked class="form-checkbox" aria-labelledby="toggleColumnsLabel"> Word</label>
+                        <label class="flex items-center gap-1"><input type="checkbox" data-column="furigana" checked class="form-checkbox" aria-labelledby="toggleColumnsLabel"> Furigana</label>
+                        <label class="flex items-center gap-1"><input type="checkbox" data-column="romaji" checked class="form-checkbox" aria-labelledby="toggleColumnsLabel"> Romaji</label>
+                        <label class="flex items-center gap-1"><input type="checkbox" data-column="meaning" checked class="form-checkbox" aria-labelledby="toggleColumnsLabel"> Meaning</label>
                     </div>
                 </div>
-                <div class="font-controls">
-                    <label>Font Size:</label>
-                    <div class="font-size-buttons">
-                        <button id="decreaseFontBtn">A-</button>
-                        <span id="currentFontSize">16px</span>
-                        <button id="increaseFontBtn">A+</button>
+
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2" role="group" aria-label="Font size controls">
+                        <label class="font-semibold">Font Size:</label>
+                        <button id="decreaseFontBtn" class="px-2 py-1 border rounded" aria-label="Decrease font size">A-</button>
+                        <span id="currentFontSize" class="px-2" aria-live="polite">16px</span>
+                        <button id="increaseFontBtn" class="px-2 py-1 border rounded" aria-label="Increase font size">A+</button>
                     </div>
-                </div>
-                <div class="learned-words-controls">
-                    <div class="checkbox-wrapper">
-                        <label>
-                            <input type="checkbox" id="hideLearnedCheckbox">
-                            Hide Learned Words
-                        </label>
+
+                    <div class="flex items-center gap-2">
+                        <label class="flex items-center gap-2"><input type="checkbox" id="hideLearnedCheckbox" class="form-checkbox" aria-checked="false" aria-label="Hide learned words"> <span>Hide Learned Words</span></label>
+                        <button id="clearLearnedBtn" class="bg-red-500 text-white px-3 py-1 rounded" aria-label="Clear learned words">Clear Learned Words</button>
                     </div>
-                    <button id="clearLearnedBtn" class="btn btn-danger">Clear Learned Words</button>
                 </div>
             </div>
         </header>
 
-        <main>
-            <div class="table-controls">
-                <div class="select-wrapper">
-                    <label for="level">Select Level:</label>
-                    <select id="level">
-                        <option value="all">All Levels</option>
-                        <option value="5">N5</option>
-                        <option value="4">N4</option>
-                        <option value="3">N3</option>
-                        <option value="2">N2</option>
-                        <option value="1">N1</option>
-                    </select>
-                </div>
-                <div class="select-wrapper search-wrapper">
-                    <label for="searchBox" class="visually-hidden">Search</label>
-                    <div class="search-input">
-                        <input type="search" id="searchBox" placeholder="Search vocabulary...">
-                        <button id="searchClearBtn" class="search-clear" aria-label="Clear" title="Clear search" style="display:none; color: var(--danger-color)">✖</button>
-                        <div id="searchSpinner" class="search-spinner" aria-hidden="true" style="display:none"></div>
-                        <button id="searchBtn" class="search-btn" aria-label="Search">🔍</button>
+    <main id="main-content" role="main" tabindex="-1">
+            <div class="space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <label for="level" class="font-semibold">Select Level:</label>
+                        <select id="level" class="border rounded px-2 py-1">
+                            <option value="all">All Levels</option>
+                            <option value="5">N5</option>
+                            <option value="4">N4</option>
+                            <option value="3">N3</option>
+                            <option value="2">N2</option>
+                            <option value="1">N1</option>
+                        </select>
+                        <label for="perPage" class="ml-4">Per page:</label>
+                        <select id="perPage" class="border rounded px-2 py-1">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
                     </div>
-                </div>
-                <div class="select-wrapper">
-                    <label for="perPage">Items per page:</label>
-                    <select id="perPage">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
-                <!-- resultsCount moved next to pagination for left alignment -->
-            </div>
 
-            <table id="vocabTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th class="col-word">Word</th>
-                        <th class="col-furigana">Furigana</th>
-                        <th class="col-romaji">Romaji</th>
-                        <th class="col-meaning">Meaning</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <div class="pagination">
-                <div class="results-wrapper">
-                    <span id="resultsCount">Showing 0 results</span>
-                </div>
-                <div class="page-controls">
-                    <button id="prevPage">Previous</button>
-                    <div class="page-navigation">
-                        <span>Page</span>
-                        <input type="number" id="currentPageInput" min="1" value="1">
-                        <span id="totalPages">of 1</span>
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-[260px]">
+                            <button id="searchBtn" class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">🔍</button>
+                            <input id="searchBox" type="search" placeholder="Search word, furigana, romaji or meaning" class="w-full pl-10 pr-20 border rounded px-3 py-2" />
+                            <div id="searchSpinner" class="absolute right-10 top-1/2 -translate-y-1/2 hidden">⏳</div>
+                            <button id="searchClearBtn" class="absolute right-2 top-1/2 -translate-y-1/2 hidden">✖</button>
+                        </div>
                     </div>
-                    <button id="nextPage">Next</button>
                 </div>
-            </div>
+
+                <table id="vocabTable" class="min-w-full bg-white rounded shadow overflow-hidden">
+                    <thead>
+                        <tr class="bg-slate-100">
+                            <th class="p-2">#</th>
+                            <th class="p-2 col-word">Word</th>
+                            <th class="p-2 col-furigana">Furigana</th>
+                            <th class="p-2 col-romaji">Romaji</th>
+                            <th class="p-2 col-meaning">Meaning</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white"></tbody>
+                </table>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div id="resultsWrapper">
+                        <span id="resultsCount" class="text-sm text-slate-600">Showing 0 results</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="prevPage" class="px-3 py-1 bg-slate-200 rounded">Previous</button>
+                        <div class="flex items-center gap-2">
+                            <span>Page</span>
+                            <input type="number" id="currentPageInput" min="1" value="1" class="w-16 border rounded px-2 py-1 text-center" />
+                            <span id="totalPages">of 1</span>
+                        </div>
+                        <button id="nextPage" class="px-3 py-1 bg-slate-200 rounded">Next</button>
+                    </div>
+                </div>
         </main>
     </div>
     <script src="js/data.js"></script>
