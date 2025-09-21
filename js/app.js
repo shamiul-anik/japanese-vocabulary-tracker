@@ -375,16 +375,33 @@ function filterVocabularyByLevel() {
                 return !(isLearnedInAll || isLearnedInLevel);
             });
         }
-        // Apply searchTerm filter (case-insensitive, partial match across multiple fields)
+        // Apply searchTerm filter (case-insensitive) and rank results by match quality
         if (searchTerm && searchTerm.length > 0) {
             const q = searchTerm.toLowerCase();
-            filtered = filtered.filter(item => {
+            // Score items: exact match (3), prefix match (2), substring match (1)
+            const scored = filtered.map((item, idx) => {
                 const word = (item.word || '').toString().toLowerCase();
                 const furigana = (item.furigana || '').toString().toLowerCase();
                 const romaji = (item.romaji || '').toString().toLowerCase();
                 const meaning = (item.meaning || '').toString().toLowerCase();
-                return word.includes(q) || furigana.includes(q) || romaji.includes(q) || meaning.includes(q);
+                const fields = [word, furigana, romaji, meaning];
+                let score = 0;
+                for (const f of fields) {
+                    if (!f) continue;
+                    if (f === q) { score = Math.max(score, 3); break; }
+                    if (f.startsWith(q)) score = Math.max(score, 2);
+                    else if (f.includes(q)) score = Math.max(score, 1);
+                }
+                return { item, score, idx };
+            }).filter(s => s.score > 0);
+
+            // stable sort by score desc, then original index asc
+            scored.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.idx - b.idx;
             });
+
+            filtered = scored.map(s => s.item);
         }
 
         // update results count display (before pagination)

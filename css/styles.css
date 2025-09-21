@@ -91,6 +91,7 @@ h2 {
   margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 15px;
+	font-weight: bold;
 }
 
 .stat-box {
