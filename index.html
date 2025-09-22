@@ -33,39 +33,41 @@
 			</div>
 			<div class="control-row">
 				<div class="column-toggles">
-					<label>Toggle Columns:</label>
-					<div class="toggle-group">
-						<label>
-							<input type="checkbox" data-column="word" checked> Word
-						</label>
-						<label>
-							<input type="checkbox" data-column="furigana" checked> Furigana
-						</label>
-						<label>
-							<input type="checkbox" data-column="romaji" checked> Romaji
-						</label>
-						<label>
-							<input type="checkbox" data-column="meaning" checked> Meaning
-						</label>
-					</div>
+					<fieldset>
+						<legend id="legend-columns" class="legend">Toggle Columns</legend>
+						<div class="toggle-group" role="group" aria-labelledby="legend-columns">
+							<label>
+								<input type="checkbox" data-column="word" checked aria-labelledby="legend-columns"> Word
+							</label>
+							<label>
+								<input type="checkbox" data-column="furigana" checked aria-labelledby="legend-columns"> Furigana
+							</label>
+							<label>
+								<input type="checkbox" data-column="romaji" checked aria-labelledby="legend-columns"> Romaji
+							</label>
+							<label>
+								<input type="checkbox" data-column="meaning" checked aria-labelledby="legend-columns"> Meaning
+							</label>
+						</div>
+					</fieldset>
 				</div>
-				<div class="font-controls">
-					<label>Font Size:</label>
-					<div class="font-size-buttons">
-						<button id="decreaseFontBtn">A-</button>
-						<span id="currentFontSize">16px</span>
-						<button id="increaseFontBtn">A+</button>
+				<fieldset class="font-controls">
+					<legend id="font-size-legend" class="legend">Font Size</legend>
+					<div class="font-size-buttons" role="group" aria-labelledby="font-size-legend">
+						<button id="decreaseFontBtn" aria-label="Decrease font size">A-</button>
+						<span id="currentFontSize" aria-live="polite">16px</span>
+						<button id="increaseFontBtn" aria-label="Increase font size">A+</button>
 					</div>
-				</div>
-				<div class="learned-words-controls">
-					<label>Learned Words:</label>
-					<div class="checkbox-wrapper">
+				</fieldset>
+				<fieldset class="learned-words-controls">
+					<legend id="learned-legend" class="legend">Learned Words</legend>
+					<div class="checkbox-wrapper" role="group" aria-labelledby="learned-legend">
 						<label title="Hide learned words">
 							<input type="checkbox" id="hideLearnedCheckbox" aria-label="Hide learned words">Hide 
 						</label>
 					</div>
 					<button id="clearLearnedBtn" class="btn btn-danger" title="Clear learned words from Local Storage" aria-label="Clear learned words">Clear</button>
-				</div>
+				</fieldset>
 			</div>
 		</header>
 
@@ -83,7 +85,7 @@
 					</select>
 				</div>
 				<div class="select-wrapper search-wrapper">
-					<label for="searchBox" class="visually-hidden">Search</label>
+						<label for="searchBox" class="visually-hidden">Search vocabulary</label>
 					<div class="search-input">
 						<input type="search" id="searchBox" placeholder="Search vocabulary..." title="Press / from keyboard to search" aria-label="Search vocabulary">
 						<button id="searchClearBtn" class="search-clear" aria-label="Clear" title="Clear search" style="display:none; color: var(--danger-color)">✖</button>
@@ -125,7 +127,7 @@
 					<button id="prevPage" aria-label="Previous page" title="Previous page">❮ Previous</button>
 					<div class="page-navigation">
 						<!-- <span>Page</span> -->
-						<input type="number" id="currentPageInput" min="1" value="1">
+						<input type="number" id="currentPageInput" min="1" value="1" aria-label="Current page number">
 						<span id="totalPages">of 1</span>
 					</div>
 					<button id="nextPage" aria-label="Next page" title="Next page">Next ❯</button>
