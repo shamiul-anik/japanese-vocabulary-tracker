@@ -68,12 +68,33 @@
 					</div>
 					<button id="clearLearnedBtn" class="btn btn-danger" title="Clear learned words from Local Storage" aria-label="Clear learned words">Clear</button>
 				</fieldset>
+				<fieldset>
+					<legend id="select-level-legend" class="legend">Select Level</legend>
+						<select id="level">
+							<option value="all">All Levels</option>
+							<option value="5">N5</option>
+							<option value="4">N4</option>
+							<option value="3">N3</option>
+							<option value="2">N2</option>
+							<option value="1">N1</option>
+						</select>
+				</fieldset>
+				<fieldset>
+					<legend id="items-per-page-legend" class="legend">Items per page</legend>
+						<select id="perPage">
+							<option value="5">5</option>
+							<option value="10">10</option>
+							<option value="25">25</option>
+							<option value="50">50</option>
+							<option value="100">100</option>
+						</select>
+				</fieldset>
 			</div>
 		</header>
 
 		<main>
 			<div class="table-controls">
-				<div class="select-wrapper">
+				<!-- <div class="select-wrapper">
 					<label for="level">Select Level:</label>
 					<select id="level">
 						<option value="all">All Levels</option>
@@ -83,7 +104,7 @@
 						<option value="2">N2</option>
 						<option value="1">N1</option>
 					</select>
-				</div>
+				</div> -->
 				<div class="select-wrapper search-wrapper">
 						<label for="searchBox" class="visually-hidden">Search vocabulary</label>
 					<div class="search-input">
@@ -93,7 +114,7 @@
 						<button id="searchBtn" class="search-btn" aria-label="Search">🔍</button>
 					</div>
 				</div>
-				<div class="select-wrapper">
+				<!-- <div class="select-wrapper">
 					<label for="perPage">Items per page:</label>
 					<select id="perPage">
 						<option value="5">5</option>
@@ -102,7 +123,7 @@
 						<option value="50">50</option>
 						<option value="100">100</option>
 					</select>
-				</div>
+				</div> -->
 				<!-- resultsCount moved next to pagination for left alignment -->
 			</div>
 

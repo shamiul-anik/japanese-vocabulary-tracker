@@ -43,7 +43,7 @@ header {
 
 .table-controls {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 10px;
   padding: 10px;
@@ -133,13 +133,14 @@ h2 {
   position: relative;
   display: flex;
   align-items: center;
+	flex-basis: 100%;
 }
 
 .search-input input[type="search"] {
   padding: 9px 33px 9px 32px;
   border-radius: 4px;
   border: 1px solid var(--border-color);
-  min-width: 220px;
+  min-width: 400px;
 }
 
 /* Hide native browser search clear buttons so only the custom clear (X) is shown */
@@ -309,6 +310,7 @@ select {
   border: 1px solid var(--border-color);
   font-size: 14px;
   min-width: 120px;
+	width: 100%;
 }
 
 /* Column Toggles */
@@ -610,7 +612,7 @@ legend {
   }
 
   .select-wrapper {
-    width: 97%;
+    width: 100%;
   }
 
   .search-input input[type="search"] {
