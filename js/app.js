@@ -258,6 +258,25 @@ function setupEventListeners() {
     // Handle manual page input
     currentPageInput.addEventListener('change', handlePageInputChange);
 
+    // Handle mouse wheel on page input
+    currentPageInput.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const currentValue = parseInt(currentPageInput.value);
+        const totalPages = parseInt(totalPagesSpan.textContent.replace('of ', ''));
+        let newValue;
+
+        if (event.deltaY < 0) {
+            newValue = currentValue + 1;
+        } else {
+            newValue = currentValue - 1;
+        }
+
+        if (newValue >= 1 && newValue <= totalPages) {
+            currentPageInput.value = newValue;
+            handlePageInputChange({ target: currentPageInput });
+        }
+    });
+
     // Save settings when leaving the page
     window.addEventListener('beforeunload', saveSettings);
 }
@@ -365,8 +384,12 @@ function filterVocabularyByLevel() {
             ? [...vocabularyData]
             : vocabularyData.filter(item => item.level === parseInt(currentLevel));
 
-    // Filter out learned words if hideLearned is true
+        const totalForLevel = filtered.length;
+        let hiddenCount = 0;
+
+        // Filter out learned words if hideLearned is true
         if (hideLearned) {
+            const beforeFilter = filtered.length;
             const allSet = learnedWords['all'] || new Set();
             filtered = filtered.filter(item => {
                 const isLearnedInAll = allSet.has(item.word);
@@ -374,7 +397,9 @@ function filterVocabularyByLevel() {
                 const isLearnedInLevel = levelSet.has(item.word);
                 return !(isLearnedInAll || isLearnedInLevel);
             });
+            hiddenCount = beforeFilter - filtered.length;
         }
+
         // Apply searchTerm filter (case-insensitive) and rank results by match quality
         if (searchTerm && searchTerm.length > 0) {
             const q = searchTerm.toLowerCase();
@@ -406,7 +431,13 @@ function filterVocabularyByLevel() {
 
         // update results count display (before pagination)
         try {
-            if (resultsCountElement) resultsCountElement.textContent = `Showing ${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
+            if (resultsCountElement) {
+                let resultText = `Showing ${filtered.length} word${filtered.length !== 1 ? 's' : ''}`;
+                if (hideLearned && hiddenCount > 0) {
+                    resultText = `Showing ${filtered.length} words (${hiddenCount} words are learned)`;
+                }
+                resultsCountElement.textContent = resultText;
+            }
         } catch (e) { /* ignore */ }
 
         return filtered;
