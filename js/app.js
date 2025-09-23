@@ -434,7 +434,7 @@ function filterVocabularyByLevel() {
             if (resultsCountElement) {
                 let resultText = `Showing ${filtered.length} word${filtered.length !== 1 ? 's' : ''}`;
                 if (hideLearned && hiddenCount > 0) {
-                    resultText = `Showing ${filtered.length} words (${hiddenCount} words are learned)`;
+                    resultText = `Showing ${filtered.length} words (${hiddenCount} words are hidden)`;
                 }
                 resultsCountElement.textContent = resultText;
             }
